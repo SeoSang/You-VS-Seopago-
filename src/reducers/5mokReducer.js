@@ -37,6 +37,7 @@ const initialState = {
   candidate: INIT_CANDIDATE,
   maxConnection: 0,
   score: 0,
+  check: false,
 }
 
 export const CLICK_SQUARE_SUCCESS = "CLICK_SQUARE_SUCCESS"
@@ -50,6 +51,7 @@ const reducer = (state = initialState, action) => {
     case CLICK_SQUARE_REQUEST: {
       return {
         ...state,
+        check: true,
       }
     }
     case CLICK_SQUARE_SUCCESS: {
@@ -59,6 +61,12 @@ const reducer = (state = initialState, action) => {
         column: square.location.column,
       })
       const newMap = updateSquares(state.map, state.turn, state.score, newSquare)
+      if (newMap.check !== true) {
+        return {
+          ...state,
+          check: false,
+        }
+      }
       return {
         ...state,
         map: newMap.newMap_,
@@ -68,8 +76,9 @@ const reducer = (state = initialState, action) => {
       }
     }
     case UPDATE_CANDIDATE: {
-      const newCandidate = updateCandidate(state.candidate, action.data.square)
-      console.log(newCandidate)
+      console.log("state.candidate => ", state.candidate)
+      const newCandidate = new Set(updateCandidate(state.candidate, action.data.square))
+      console.log("newCandidate => ", newCandidate)
       return {
         ...state,
         candidate: newCandidate,

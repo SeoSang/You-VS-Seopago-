@@ -18,15 +18,25 @@ export const updateSquares = (map, turn, score, newSquare) => {
     location: { row, column },
     state: nowState,
   } = newSquare
+  const newScore = getTotalScore(map, turn, score, newSquare)
+  if (newScore % 10 !== 0) {
+    return {
+      newMap_: map,
+      status: "playing",
+      score: score,
+      turn: turn === ME_TURN ? ME_TURN : COM_TURN,
+      check: false,
+    }
+  }
   const newMap = [...map]
   newMap[row][column] = new Square(nowState, 0, { row: row, column: column })
-  const newScore = getTotalScore(map, turn, score, newSquare)
 
   return {
     newMap_: Object.freeze(newMap),
     status: newScore === Infinity ? "end" : "playing",
     score: newScore,
     turn: turn === ME_TURN ? COM_TURN : ME_TURN,
+    check: true,
   }
 }
 
@@ -79,15 +89,34 @@ export const getThisScore = (map, newSquare, who = "me") => {
   return score
 }
 
+export const isThreeThree = (nearSequence) => {
+  let Three = 0
+  for (let direction in nearSequence) {
+    const seqPerDirection = nearSequence[direction]
+    const { start, end } = seqPerDirection
+    const sequence = start + end
+    if (sequence === 2) {
+      Three += 1
+    }
+  }
+  if (Three >= 2) return true
+  return false
+}
+
 // 방금 둔 수가 얼마나 좋은지 측정
 export const getNewScore = (nearSequence, who) => {
+  let Three = 0
   let res = 0
   for (let direction in nearSequence) {
     const seqPerDirection = nearSequence[direction]
     const { start, end } = seqPerDirection
     const sequence = start + end
+    if (sequence === 2) {
+      Three += 1
+    }
     res += calScore(sequence, who)
   }
+  if (Three >= 2) return 33
   return res
 }
 
@@ -113,7 +142,7 @@ export const calScore = (sequence, who) => {
         break
       }
       case 4: {
-        resScore += 1000000
+        resScore += 10000000
         break
       }
       default: {
@@ -143,7 +172,7 @@ export const calScore = (sequence, who) => {
         break
       }
       case 4: {
-        resScore += 1100000
+        resScore += 11000000
         break
       }
       default: {
@@ -270,18 +299,17 @@ export const isEmptySquare = (Square) => {
 // 현재까지 둔곳의 위 아래로 1 까지만 확인할 것이다.
 
 export const updateCandidate = (candidate, square) => {
-  var newCandidate = new Set([...candidate])
   const { row, column } = square.location
   for (let i = Math.max(row - 1, 0); i <= Math.min(row + 1, 18); i++) {
     for (let j = Math.max(column - 1, 0); j <= Math.min(column + 1, 18); j++) {
       if (i === row && j === column) {
-        newCandidate.delete(i * 100 + j)
+        candidate.delete(i * 100 + j)
       } else {
-        newCandidate.add(i * 100 + j)
+        candidate.add(i * 100 + j)
       }
     }
   }
-  return newCandidate
+  return candidate
 }
 
 // 주변 놈들 구한다.
@@ -291,13 +319,12 @@ export const getNears = (square) => {
   for (let i = Math.max(row - 1, 0); i <= Math.min(row + 1, 18); i++) {
     for (let j = Math.max(column - 1, 0); j <= Math.min(column + 1, 18); j++) {
       if (i === row && j === column) {
-        nears.delete(i * 100 + j)
       } else {
         nears.add(i * 100 + j)
       }
     }
   }
-  return nears
+  return Array.from(nears)
 }
 
 export const decryptCandidate = (n) => {

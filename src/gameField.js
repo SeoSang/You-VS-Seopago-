@@ -11,7 +11,7 @@ import {
   Square,
   CLICK_SQUARE_REQUEST,
 } from "./reducers/5mokReducer"
-import { MinMax_Decision } from "./alphabeta"
+import { Alpha_Beta_Search } from "./alphabeta"
 
 const SquareDivWrapper = styled(Col)`
   background: transparent;
@@ -64,16 +64,16 @@ const GameFeild = () => {
   }
   const comDo = () => {
     if (turn === COM_TURN) {
-      const ComResult = MinMax_Decision(map, candidate, turn, 1)
-      const { score, BestDecision } = ComResult
+      const ComResult = Alpha_Beta_Search(map, candidate, turn, 2)
+      const { score, BestDecision, newCandidate } = ComResult
       const square = new Square(COM_SQUARE, 0, { ...BestDecision })
-      dispatch({ type: CLICK_SQUARE_REQUEST, data: { square } })
+      dispatch({ type: CLICK_SQUARE_REQUEST, data: { square }, candidate: { newCandidate } })
     }
   }
   useEffect(() => {
-    console.log(candidate)
-    // console.log(status)
-    console.log(score)
+    console.log("main__ candidate => ", candidate)
+    console.log(status)
+    console.log("main__ score => ", score)
     // console.log(turn)
   }, [candidate, status, score, turn, dispatch, map])
   return (

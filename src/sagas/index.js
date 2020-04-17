@@ -6,25 +6,32 @@ import {
   COM_SQUARE,
 } from "../reducers/5mokReducer"
 import { call, all, fork, takeLatest, put, select } from "redux-saga/effects"
-import { MinMax_Decision } from "../alphabeta"
-import * as selectors from "../selector"
+import { Alpha_Beta_Search } from "../alphabeta"
 
 function* disposeMySquare(action) {
   yield put({
     type: CLICK_SQUARE_SUCCESS,
     data: action.data,
   })
+  const state = yield select()
+  const { check } = state.Omok
+  // 33 발생
+  if (check === false) {
+    yield alert("33입니다")
+    return true
+  }
   yield put({
     type: UPDATE_CANDIDATE,
     data: action.data,
   })
-  const state = yield select()
-  const { candidate, map, turn } = state.Omok
+  const state2 = yield select()
+  const { candidate, map, turn } = state2.Omok
+  console.log("function*disposeMySquare -> candidate", candidate)
   yield call(disoposeComSquare, map, turn, candidate)
 }
 
 function* disoposeComSquare(map, turn, candidate) {
-  const ComResult = yield MinMax_Decision(map, candidate, turn, 3)
+  const ComResult = yield Alpha_Beta_Search(map, candidate, turn, 4)
   const { score, BestDecision } = ComResult
   const square = new Square(COM_SQUARE, 0, { ...BestDecision })
   yield put({
