@@ -42,9 +42,11 @@ const initialState = {
 
 export const CLICK_SQUARE_SUCCESS = "CLICK_SQUARE_SUCCESS"
 export const CLICK_SQUARE_REQUEST = "CLICK_SQUARE_REQUEST"
+export const CLICK_COM_SQUARE_REQUEST = "CLICK_COM_SQUARE_REQUEST"
 export const UPDATE_CANDIDATE = "UPDATE_CANDIDATE"
 export const UPDATE_NOW_SCORE = "UPDATE_NOW_SCORE"
 export const COM_DO = "COM_DO"
+export const COM_START = "COM_START"
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
@@ -52,6 +54,14 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         check: true,
+        turn: ME_TURN,
+      }
+    }
+    case CLICK_COM_SQUARE_REQUEST: {
+      return {
+        ...state,
+        check: true,
+        turn: COM_TURN,
       }
     }
     case CLICK_SQUARE_SUCCESS: {
@@ -91,9 +101,16 @@ const reducer = (state = initialState, action) => {
         score: newScore,
       }
     }
-    // case COM_DO: {
-    //   const
-    // }
+    case COM_START: {
+      const square = new Square(COM_SQUARE, 0, { row: 9, column: 9 })
+      const newMap = [...state.map]
+      newMap[9][9] = square
+      return {
+        ...state,
+        map: newMap,
+        turn: ME_TURN,
+      }
+    }
     default:
       return { ...state }
   }

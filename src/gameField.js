@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback } from "react"
-import { Layout, Row, Col, Button } from "antd"
+import { Layout, Row, Col, Button, Alert, Card } from "antd"
 import styled from "styled-components"
 import { useSelector, useDispatch } from "react-redux"
 
@@ -10,6 +10,8 @@ import {
   COM_TURN,
   Square,
   CLICK_SQUARE_REQUEST,
+  CLICK_COM_SQUARE_REQUEST,
+  COM_START,
 } from "./reducers/5mokReducer"
 import { Alpha_Beta_Search } from "./alphabeta"
 
@@ -63,21 +65,48 @@ const GameFeild = () => {
     }
   }
   const comDo = () => {
-    if (turn === COM_TURN) {
-      const ComResult = Alpha_Beta_Search(map, candidate, turn, 2)
-      const { score, BestDecision, newCandidate } = ComResult
-      const square = new Square(COM_SQUARE, 0, { ...BestDecision })
-      dispatch({ type: CLICK_SQUARE_REQUEST, data: { square }, candidate: { newCandidate } })
-    }
+    dispatch({ type: CLICK_COM_SQUARE_REQUEST, map, candidate })
+  }
+  const comStart = () => {
+    dispatch({ type: COM_START })
   }
   useEffect(() => {
     console.log("main__ candidate => ", candidate)
-    console.log(status)
     console.log("main__ score => ", score)
+    if (status === "end ") {
+      alert("게임 종료!")
+    }
     // console.log(turn)
   }, [candidate, status, score, turn, dispatch, map])
+
+  const onClose = (e) => {
+    console.log(e, "alert창 꺼짐")
+  }
+
   return (
     <>
+      <Card
+        style={{ fontSize: "1rem", width: 150, position: "absolute", top: "40%", right: "10%" }}
+      >
+        <p style={{ color: "#4cd137" }}>● - 사용자</p>
+        <p></p>
+        <p style={{ color: "#e84118" }}>● - 컴퓨터</p>
+      </Card>
+      <Alert
+        message='후공 -> 아래 버튼 클릭 후 시작___'
+        description='(선공은 그냥 시작하시면 됩니다.)'
+        type='info'
+        closable
+        onClose={onClose}
+        style={{
+          position: "absolute",
+          left: "50%",
+          transform: "translateX(-50%)",
+          fontSize: "1.5rem",
+          zIndex: 1,
+        }}
+        banner={true}
+      />
       <Layout.Content style={{ textAlign: "center", margin: "auto" }}>
         <div
           style={{
@@ -109,9 +138,14 @@ const GameFeild = () => {
             </Row>
           ))}
         </div>
-        <Button onClick={comDo} style={{ marginTop: "10px" }}>
-          서파고의 신의 한 수
-        </Button>
+        <div style={{ display: "inline-block" }}>
+          <Button onClick={comStart} style={{ margin: "12px 12px" }}>
+            컴퓨터 먼저 시작!
+          </Button>
+          <Button onClick={comDo} style={{ margin: "12px 12px" }}>
+            서파고의 신의 한 수
+          </Button>
+        </div>
       </Layout.Content>
     </>
   )
