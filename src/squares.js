@@ -64,17 +64,19 @@ export const getThisScore = (map, newSquare, who = "me") => {
   } = newSquare
 
   // 연속되는 돌 정보
+  // 0번 인덱스는 개수, 1번 인덱스는 막힌 돌 숫자
   const myNearSequence = {
-    LEFT_DIAG: { start: 0, end: 0 },
-    RIGHT_DIAG: { start: 0, end: 0 },
-    VERTICAL: { start: 0, end: 0 },
-    HORIZONTAL: { start: 0, end: 0 },
+    LEFT_DIAG: { start: [0, 0], end: [0, 0] },
+    RIGHT_DIAG: { start: [0, 0], end: [0, 0] },
+    VERTICAL: { start: [0, 0], end: [0, 0] },
+    HORIZONTAL: { start: [0, 0], end: [0, 0] },
   }
 
   for (let i = row - 1; i <= row + 1; i++) {
     for (let j = column - 1; j <= column + 1; j++) {
       if (isValidIndex(i) && isValidIndex(j)) {
         if (i === row && j === column) {
+          setBlockedSequence(i, j, myNearSequence, nowState, map)
         } else {
           if (map[i][j].state === nowState) {
             // 같은돌 연달아
@@ -94,8 +96,9 @@ export const isThreeThree = (nearSequence) => {
   for (let direction in nearSequence) {
     const seqPerDirection = nearSequence[direction]
     const { start, end } = seqPerDirection
-    const sequence = start + end
-    if (sequence === 2) {
+    const sequence = start[0] + end[0]
+    const blockedCount = start[1] + end[1]
+    if (sequence === 2 && blockedCount === 0) {
       Three += 1
     }
   }
@@ -110,78 +113,151 @@ export const getNewScore = (nearSequence, who) => {
   for (let direction in nearSequence) {
     const seqPerDirection = nearSequence[direction]
     const { start, end } = seqPerDirection
-    const sequence = start + end
-    if (sequence === 2) {
+    const sequence = start[0] + end[0]
+    const blockedCount = start[1] + end[1]
+    if (sequence === 2 && blockedCount === 0) {
       Three += 1
     }
-    res += calScore(sequence, who)
+    res += calScore(sequence, blockedCount, who)
   }
-  if (Three >= 2) return 33
+  if (Three >= 2) return -10033
   return res
 }
 
-export const calScore = (sequence, who) => {
+export const calScore = (sequence, blockedCount, who) => {
   let resScore = 0
-  if (who === "me") {
-    switch (sequence) {
-      case 0: {
-        // 연속된거 없을 때
-        break
+  // ------------------막힌돌 0개------------------
+  if (blockedCount === 0) {
+    if (who === "me") {
+      switch (sequence) {
+        case 0: {
+          // 연속된거 없을 때
+          break
+        }
+        case 1: {
+          // 2개 연속
+          resScore += 400
+          break
+        }
+        case 2: {
+          resScore += 1000
+          break
+        }
+        case 3: {
+          resScore += 10000
+          break
+        }
+        case 4: {
+          resScore += 10000000
+          break
+        }
+        default: {
+          // 6개 이상 연속일 때 (쓸 데 없는 수)
+          resScore -= 1000
+          break
+        }
       }
-      case 1: {
-        // 2개 연속
-        resScore += 300
-        break
-      }
-      case 2: {
-        resScore += 1000
-        break
-      }
-      case 3: {
-        resScore += 4000
-        break
-      }
-      case 4: {
-        resScore += 10000000
-        break
-      }
-      default: {
-        // 6개 이상 연속일 때 (쓸 데 없는 수)
-        resScore -= 1000
-        break
-      }
-    }
-  } else {
-    // 상대방입장 점수 (막으면서 얻는 점수)
-    switch (sequence) {
-      case 0: {
-        // 연속된거 없을 때
-        break
-      }
-      case 1: {
-        // 2개 연속
-        resScore += 400
-        break
-      }
-      case 2: {
-        resScore += 1100
-        break
-      }
-      case 3: {
-        resScore += 4100
-        break
-      }
-      case 4: {
-        resScore += 11000000
-        break
-      }
-      default: {
-        // 6개 이상 연속일 때 (쓸 데 없는 수)
-        resScore -= 1000
-        break
+    } else {
+      // 상대방입장 점수 (막으면서 얻는 점수)
+      switch (sequence) {
+        case 0: {
+          // 연속된거 없을 때
+          break
+        }
+        case 1: {
+          // 2개 연속
+          resScore += 400
+          break
+        }
+        case 2: {
+          resScore += 900
+          break
+        }
+        case 3: {
+          resScore += 9500
+          break
+        }
+        case 4: {
+          resScore += 9000000
+          break
+        }
+        default: {
+          // 6개 이상 연속일 때 (쓸 데 없는 수)
+          resScore -= 1000
+          break
+        }
       }
     }
   }
+  // ------------------막힌돌 1개------------------
+  else if (blockedCount === 1) {
+    if (who === "me") {
+      // 막힌돌 0개
+      switch (sequence) {
+        case 0: {
+          // 연속된거 없을 때
+          break
+        }
+        case 1: {
+          // 2개 연속
+          resScore += 50
+          break
+        }
+        case 2: {
+          resScore += 100
+          break
+        }
+        case 3: {
+          resScore += 500
+          break
+        }
+        case 4: {
+          resScore += 5000000
+          break
+        }
+        default: {
+          // 6개 이상 연속일 때 (쓸 데 없는 수)
+          resScore -= 2000
+          break
+        }
+      }
+    } else {
+      // 상대방입장 점수 (막으면서 얻는 점수)
+      switch (sequence) {
+        case 0: {
+          // 연속된거 없을 때
+          break
+        }
+        case 1: {
+          // 2개 연속
+          resScore += 80
+          break
+        }
+        case 2: {
+          resScore += 110
+          break
+        }
+        case 3: {
+          resScore += 1100
+          break
+        }
+        case 4: {
+          resScore += 5000000
+          break
+        }
+        default: {
+          // 6개 이상 연속일 때 (쓸 데 없는 수)
+          resScore -= 2000
+          break
+        }
+      }
+    }
+  }
+  // ------------------양쪽 다막힘------------------
+  else {
+    resScore -= 300
+  }
+
   return resScore
 }
 
@@ -195,7 +271,7 @@ export const isValid_And_isSameState = (map, r, c, state) => {
   return isValidIndex(r) && isValidIndex(c) && map[r][c].state === state
 }
 
-// 연속 몇개인지 세주기
+// 연속 몇개인지, 막힌돌 몇개인지 세주기
 export const setNearSequence = (
   row,
   column,
@@ -211,10 +287,49 @@ export const setNearSequence = (
     // 중립돌일때
     return false
   }
+  const counterState = nowState === ME_SQUARE ? COM_SQUARE : ME_SQUARE
+
+  let seq = 0
   while (isValid_And_isSameState(map, row, column, nowState)) {
     row += x
     column += y
-    nearSequence[direction][startOrEnd]++
+    seq++
+  }
+  if (!isValidIndex(row) || !isValidIndex(column)) {
+    nearSequence[direction][startOrEnd][1] += 1
+  } else if (map[row][column].state === counterState) {
+    nearSequence[direction][startOrEnd][1] += 1
+  }
+  nearSequence[direction][startOrEnd][0] = seq
+}
+
+export const setBlockedSequence = (row, column, nearSequence, nowState, map) => {
+  const counterState = nowState === ME_SQUARE ? COM_SQUARE : ME_SQUARE
+  for (let i = row - 1; i <= row + 1; i++) {
+    for (let j = column - 1; j <= column + 1; j++) {
+      if (i === row && j === column) {
+      } else {
+        if (isValidIndex(i) && isValidIndex(j) && map[i][j].state === counterState) {
+          if (i === row - 1 && j === column - 1) {
+            nearSequence[LEFT_DIAG]["start"][1] += 1
+          } else if (i === row + 1 && j === column + 1) {
+            nearSequence[LEFT_DIAG]["end"][1] += 1
+          } else if (i === row - 1 && j === column + 1) {
+            nearSequence[RIGHT_DIAG]["start"][1] += 1
+          } else if (i === row + 1 && j === column - 1) {
+            nearSequence[RIGHT_DIAG]["end"][1] += 1
+          } else if (i === row - 1 && j === column) {
+            nearSequence[VERTICAL]["start"][1] += 1
+          } else if (i === row + 1 && j === column) {
+            nearSequence[VERTICAL]["end"][1] += 1
+          } else if (i === row && j === column - 1) {
+            nearSequence[HORIZONTAL]["start"][1] += 1
+          } else if (i === row && j === column + 1) {
+            nearSequence[HORIZONTAL]["end"][1] += 1
+          }
+        }
+      }
+    }
   }
 }
 
@@ -257,7 +372,7 @@ export const setAllNearSequence = (row, column, i, j, sequence, map, state) => {
 export const isEndGame = (nearSequence) => {
   for (let direction in nearSequence) {
     const { start, end } = nearSequence[direction]
-    if (start + end === 4) {
+    if (start[0] + end[0] === 4) {
       return true
     }
   }
@@ -284,7 +399,7 @@ export const getMaxConnection = (nearSequence) => {
   for (let direction in nearSequence) {
     const sequence = nearSequence[direction]
     const { start, end } = sequence
-    const connectionCount = 1 + start + end
+    const connectionCount = 1 + start[0] + end[0]
     if (maxConnection < connectionCount) {
       maxConnection = connectionCount
     }
@@ -312,7 +427,7 @@ export const updateCandidate = (candidate, square) => {
   return candidate
 }
 
-// 주변 놈들 구한다.
+// 특정 돌의 주변 놈들을 Array 형태로 반환.
 export const getNears = (square) => {
   const { row, column } = square.location
   const nears = new Set()
@@ -327,6 +442,7 @@ export const getNears = (square) => {
   return Array.from(nears)
 }
 
+// Candidate 를 다시 i, j 형태로 해독한다.
 export const decryptCandidate = (n) => {
   const j = n % 100
   const i = (n - j) / 100

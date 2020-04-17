@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react"
+import React, { useEffect } from "react"
 import { Layout, Row, Col, Button, Alert, Card } from "antd"
 import styled from "styled-components"
 import { useSelector, useDispatch } from "react-redux"
@@ -7,13 +7,10 @@ import {
   NEU_SQUARE,
   ME_SQUARE,
   COM_SQUARE,
-  COM_TURN,
-  Square,
   CLICK_SQUARE_REQUEST,
   CLICK_COM_SQUARE_REQUEST,
   COM_START,
 } from "./reducers/5mokReducer"
-import { Alpha_Beta_Search } from "./alphabeta"
 
 const SquareDivWrapper = styled(Col)`
   background: transparent;
@@ -26,12 +23,6 @@ const SquareDiv = styled.div`
   cursor: pointer;
   box-shadow: 1px 1px 1px 1px gray;
 `
-
-const PropsBox = styled.div((props) => ({
-  background: props.background,
-  height: "50px",
-  width: "50px",
-}))
 
 const EmptySquare = styled(SquareDiv)`
   background: #e6e6e3;
@@ -71,8 +62,8 @@ const GameFeild = () => {
     dispatch({ type: COM_START })
   }
   useEffect(() => {
-    console.log("main__ candidate => ", candidate)
-    console.log("main__ score => ", score)
+    // console.log("main__ candidate => ", candidate)
+    // console.log("main__ score => ", score)
     if (status === "end ") {
       alert("게임 종료!")
     }

@@ -8,9 +8,10 @@ import {
   COM_TURN,
 } from "../reducers/5mokReducer"
 import { call, all, fork, takeLatest, put, select } from "redux-saga/effects"
-import { Alpha_Beta_Search } from "../alphabeta"
+import { Alpha_Beta_Search, iterDeepSearch } from "../alphabeta"
 
 function* disposeMySquare(action) {
+  // 돌이 두어졌을 때
   yield put({
     type: CLICK_SQUARE_SUCCESS,
     data: action.data,
@@ -22,26 +23,26 @@ function* disposeMySquare(action) {
     yield alert("33입니다")
     return true
   }
+  // Candidate 갱신
   yield put({
     type: UPDATE_CANDIDATE,
     data: action.data,
   })
   const state2 = yield select()
   const { candidate, map } = state2.Omok
-  console.log("function*disposeMySquare -> candidate", candidate)
-  yield call(disoposeComSquare, map, candidate)
+  // 내가두면 컴퓨터 두는 Action 실행
+  yield call(disposeComSquare, map, candidate)
 }
 
 function* doComSquare(action) {
-  yield console.log(action)
-  yield call(disoposeComSquare, action.map, action.candidate)
+  yield call(disposeComSquare, action.map, action.candidate)
 }
 
-function* disoposeComSquare(map, candidate) {
-  const ComResult = yield Alpha_Beta_Search(map, candidate, COM_TURN, 4)
+function* disposeComSquare(map, candidate) {
+  const ComResult = yield Alpha_Beta_Search(map, candidate, COM_TURN, 3)
+  // const ComResult = yield iterDeepSearch(map, candidate, 3)
   const { BestDecision } = ComResult
   const square = new Square(COM_SQUARE, 0, { ...BestDecision })
-  yield console.log(square)
   yield put({
     type: CLICK_SQUARE_SUCCESS,
     data: { square },

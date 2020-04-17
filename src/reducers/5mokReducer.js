@@ -19,6 +19,8 @@ export class Square {
     this.location = location
   }
 }
+
+// 초기 map
 export const initMap = Array(19)
   .fill(null)
   .map((v, row) =>
@@ -30,6 +32,7 @@ export const initMap = Array(19)
       }),
   )
 
+// State가 가지고있는 변수들이다.
 const initialState = {
   map: initMap,
   turn: ME_TURN,
@@ -86,9 +89,7 @@ const reducer = (state = initialState, action) => {
       }
     }
     case UPDATE_CANDIDATE: {
-      console.log("state.candidate => ", state.candidate)
       const newCandidate = new Set(updateCandidate(state.candidate, action.data.square))
-      console.log("newCandidate => ", newCandidate)
       return {
         ...state,
         candidate: newCandidate,

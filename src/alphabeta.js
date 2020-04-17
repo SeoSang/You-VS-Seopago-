@@ -36,7 +36,7 @@ export const Alpha_Beta_Search = (map, candidate, turn, limitDepth) => {
         BestDecision.row = i
         BestDecision.column = j
       }
-      if (v <= -10000000) return true
+      if (v <= -8000000) return true
     }
   })
   return {
@@ -46,9 +46,6 @@ export const Alpha_Beta_Search = (map, candidate, turn, limitDepth) => {
 }
 
 export const Max_Value = (map, candidate, turn, nowDepth, limitDepth, alpha, beta, score) => {
-  // console.log("Max_Value 실행됨")
-  // console.log("Max_Value 의 nowDepth : ", nowDepth)
-
   // Depth 검사와 33검사
   if (nowDepth >= limitDepth || score % 10 !== 0) {
     return score
@@ -88,9 +85,8 @@ export const Max_Value = (map, candidate, turn, nowDepth, limitDepth, alpha, bet
       if (nextv % 10 !== 0) {
         return false
       }
-      // console.log("In Max_Value: nextv => ", nextv)
       v = Math.max(v, nextv)
-      if (v >= 10000000 || v >= beta) return true
+      if (v >= 8000000 || v >= beta) return true
       alpha = Math.max(alpha, v)
     }
   })
@@ -141,7 +137,7 @@ export const Min_Value = (map, candidate, turn, nowDepth, limitDepth, alpha, bet
         return false
       }
       v = Math.min(v, nextv)
-      if (v <= alpha || v <= -10000000) {
+      if (v <= alpha || v <= -8000000) {
         return true
       }
       beta = Math.min(beta, v)
@@ -150,9 +146,25 @@ export const Min_Value = (map, candidate, turn, nowDepth, limitDepth, alpha, bet
   return v
 }
 
-// const iterDeepSearch = (map) => {
-//   let res = Infinity
-//   for (let depth = 0; depth < 5; depth++) {
-//     res = Math.min(alphabeta(), res)
-//   }
-// }
+// iterative Deepening Search 로 알바베타 프루닝 실행
+export const iterDeepSearch = (map, candidate, dep) => {
+  let res = -Infinity
+  let finalDecision = undefined
+  for (let depth = 0; depth < dep; depth++) {
+    const result = Alpha_Beta_Search(map, candidate, COM_TURN, depth)
+    const { score, BestDecision } = result
+    if (score <= -8000000) {
+      res = score
+      finalDecision = BestDecision
+      return { score: res, BestDecision: finalDecision }
+    }
+    if (score >= res) {
+      res = score
+      finalDecision = BestDecision
+    }
+  }
+  return {
+    score: res,
+    BestDecision: finalDecision,
+  }
+}
