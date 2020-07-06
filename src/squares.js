@@ -63,6 +63,8 @@ export const getThisScore = (map, newSquare, who = "me") => {
     state: nowState,
   } = newSquare
 
+  const counterState = nowState === ME_SQUARE ? COM_SQUARE : ME_SQUARE
+
   // 연속되는 돌 정보
   // 0번 인덱스는 개수, 1번 인덱스는 막힌 돌 숫자
   const myNearSequence = {
@@ -81,6 +83,24 @@ export const getThisScore = (map, newSquare, who = "me") => {
           if (map[i][j].state === nowState) {
             // 같은돌 연달아
             setAllNearSequence(row, column, i, j, myNearSequence, map, nowState)
+          } else if (map[i][j].state === counterState) {
+            if (i === row - 1 && j === column - 1) {
+              myNearSequence[LEFT_DIAG]["start"][1] += 1
+            } else if (i === row + 1 && j === column + 1) {
+              myNearSequence[LEFT_DIAG]["end"][1] += 1
+            } else if (i === row - 1 && j === column + 1) {
+              myNearSequence[RIGHT_DIAG]["start"][1] += 1
+            } else if (i === row + 1 && j === column - 1) {
+              myNearSequence[RIGHT_DIAG]["end"][1] += 1
+            } else if (i === row - 1 && j === column) {
+              myNearSequence[VERTICAL]["start"][1] += 1
+            } else if (i === row + 1 && j === column) {
+              myNearSequence[VERTICAL]["end"][1] += 1
+            } else if (i === row && j === column - 1) {
+              myNearSequence[HORIZONTAL]["start"][1] += 1
+            } else if (i === row && j === column + 1) {
+              myNearSequence[HORIZONTAL]["end"][1] += 1
+            }
           }
         }
       }
@@ -303,36 +323,6 @@ export const setNearSequence = (
   nearSequence[direction][startOrEnd][0] = seq
 }
 
-export const setBlockedSequence = (row, column, nearSequence, nowState, map) => {
-  const counterState = nowState === ME_SQUARE ? COM_SQUARE : ME_SQUARE
-  for (let i = row - 1; i <= row + 1; i++) {
-    for (let j = column - 1; j <= column + 1; j++) {
-      if (i === row && j === column) {
-      } else {
-        if (isValidIndex(i) && isValidIndex(j) && map[i][j].state === counterState) {
-          if (i === row - 1 && j === column - 1) {
-            nearSequence[LEFT_DIAG]["start"][1] += 1
-          } else if (i === row + 1 && j === column + 1) {
-            nearSequence[LEFT_DIAG]["end"][1] += 1
-          } else if (i === row - 1 && j === column + 1) {
-            nearSequence[RIGHT_DIAG]["start"][1] += 1
-          } else if (i === row + 1 && j === column - 1) {
-            nearSequence[RIGHT_DIAG]["end"][1] += 1
-          } else if (i === row - 1 && j === column) {
-            nearSequence[VERTICAL]["start"][1] += 1
-          } else if (i === row + 1 && j === column) {
-            nearSequence[VERTICAL]["end"][1] += 1
-          } else if (i === row && j === column - 1) {
-            nearSequence[HORIZONTAL]["start"][1] += 1
-          } else if (i === row && j === column + 1) {
-            nearSequence[HORIZONTAL]["end"][1] += 1
-          }
-        }
-      }
-    }
-  }
-}
-
 // 근처돌 이용해서 점수 일괄 계산
 export const setAllNearSequence = (row, column, i, j, sequence, map, state) => {
   if ((i === row - 1 && j === column - 1) || (i === row + 1 && j === column + 1)) {
@@ -364,6 +354,36 @@ export const setAllNearSequence = (row, column, i, j, sequence, map, state) => {
       setNearSequence(i, j, 0, -1, sequence, VERTICAL, "start", map, state)
     } else {
       setNearSequence(i, j, 0, +1, sequence, VERTICAL, "end", map, state)
+    }
+  }
+}
+
+export const setBlockedSequence = (row, column, nearSequence, nowState, map) => {
+  const counterState = nowState === ME_SQUARE ? COM_SQUARE : ME_SQUARE
+  for (let i = row - 1; i <= row + 1; i++) {
+    for (let j = column - 1; j <= column + 1; j++) {
+      if (i === row && j === column) {
+      } else {
+        if (isValidIndex(i) && isValidIndex(j) && map[i][j].state === counterState) {
+          if (i === row - 1 && j === column - 1) {
+            nearSequence[LEFT_DIAG]["start"][1] += 1
+          } else if (i === row + 1 && j === column + 1) {
+            nearSequence[LEFT_DIAG]["end"][1] += 1
+          } else if (i === row - 1 && j === column + 1) {
+            nearSequence[RIGHT_DIAG]["start"][1] += 1
+          } else if (i === row + 1 && j === column - 1) {
+            nearSequence[RIGHT_DIAG]["end"][1] += 1
+          } else if (i === row - 1 && j === column) {
+            nearSequence[VERTICAL]["start"][1] += 1
+          } else if (i === row + 1 && j === column) {
+            nearSequence[VERTICAL]["end"][1] += 1
+          } else if (i === row && j === column - 1) {
+            nearSequence[HORIZONTAL]["start"][1] += 1
+          } else if (i === row && j === column + 1) {
+            nearSequence[HORIZONTAL]["end"][1] += 1
+          }
+        }
+      }
     }
   }
 }
