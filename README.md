@@ -7,13 +7,22 @@
 
 ------
 
-## 언어
+## 실행 방법
+
+1. NPM 설치
+2. NPM 을 통해 react를 비롯한 내부 모듈 설치
+
+    `npm install`
+
+-------------------------------
+
+### 언어
 
 - React JS
 - Typescript
 - Redux
 
-## 알고리즘
+### 알고리즘
 
 - MinMax 알고리즘
 - Alpha-Beta Prunning 알고리즘
